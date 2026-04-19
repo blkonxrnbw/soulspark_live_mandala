@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoulSpark Resource Guide | Live Mandala CRM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600&family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2d2d3d;
+            --secondary: #8b7ba8;
+            --accent: #d4a574;
+            --light-bg: #f0eee1;
+            --card-bg: #fefdfb;
+            --border: #e0dcd5;
+            --success: #7ab55c;
+            --warning: #d4a574;
+            --danger: #c85a54;
+        }
+
+        body {
+            font-family: 'Jost', sans-serif;
+            background: linear-gradient(135deg, var(--light-bg) 0%, #e8e5de 100%);
+            color: var(--primary);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Mandala background animation */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(139, 123, 168, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: mandala-pulse 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes mandala-pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.5; }
+        }
+
+        header {
+            position: relative;
+            z-index: 10;
+            padding: 40px 20px 20px;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            color: var(--primary);
+            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1em;
+            color: var(--secondary);
+            font-weight: 300;
+        }
+
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .view-toggle button {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--primary);
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Jost', sans-serif;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .view-toggle button.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        .view-toggle button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 123, 168, 0.2);
+        }
+
+        .container {
+            position: relative;
+            z-index: 5;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* View containers */
+        .view-container {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .view-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Directory View */
+        .directory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            font-family: 'Jost', sans-serif;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(139, 123, 168, 0.1);
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-section select {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            font-family: 'Jost', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .filter-section select:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(139, 123, 168, 0.15);
+            border-color: var(--secondary);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4em;
+            color: var(--primary);
+            flex: 1;
+        }
+
+        .card-type {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-type.person {
+            background: rgba(122, 181, 92, 0.1);
+            color: var(--success);
+        }
+
+        .card-type.modality {
+            background: rgba(212, 165, 116, 0.1);
+            color: var(--accent);
+        }
+
+        .card-modality {
+            color: var(--secondary);
+            font-size: 0.95em;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .card-location {
+            color: #999;
+            font-size: 0.85em;
+            margin-bottom: 8px;
+        }
+
+        .card-areas-served {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .area-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            background: rgba(212, 165, 116, 0.1);
+            border-radius: 8px;
+            font-size: 0.75em;
+            color: var(--accent);
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 5px 10px;
+            background: rgba(139, 123, 168, 0.08);
+            border-radius: 10px;
+            font-size: 0.8em;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+
+        .tag.modality-link {
+            background: rgba(212, 165, 116, 0.1);
+            color: var(--accent);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tag.modality-link:hover {
+            background: rgba(212, 165, 116, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .admin-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: var(--primary);
+        }
+
+        .role-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .role-badge.admin {
+            background: rgba(200, 90, 84, 0.1);
+            color: var(--danger);
+        }
+
+        .role-badge.editor {
+            background: rgba(122, 181, 92, 0.1);
+            color: var(--success);
+        }
+
+        .role-badge.viewer {
+            background: rgba(153, 153, 153, 0.1);
+            color: #999;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 6px;
+            font-size: 0.9em;
+            letter-spacing: 0.3px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Jost', sans-serif;
+            font-size: 0.9em;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(139, 123, 168, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .alignment-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            background: rgba(212, 165, 116, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .alignment-section h4 {
+            grid-column: 1 / -1;
+            color: var(--accent);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 11px 22px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Jost', sans-serif;
+            font-weight: 600;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary) 0%, #9b8bb8 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(139, 123, 168, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #6ba546;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b84a44;
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: #d0ccc5;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            border-radius: 15px;
+            padding: 30px;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: var(--primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: auto;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: var(--primary);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .info-group {
+            margin-bottom: 15px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .modal-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        /* Mandala View */
+        .mandala-container {
+            position: relative;
+            width: 100%;
+            height: 700px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #mandala-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .mandala-info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            font-size: 0.9em;
+            color: var(--primary);
+            max-width: 300px;
+        }
+
+        .mandala-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 50;
+        }
+
+        .mandala-controls button {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--primary);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.3s ease;
+        }
+
+        .mandala-controls button:hover {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        /* Loading state */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            color: var(--secondary);
+        }
+
+        .spinner {
+            border: 3px solid rgba(139, 123, 168, 0.1);
+            border-top-color: var(--secondary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .directory-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .mandala-container {
+                height: 500px;
+            }
+
+            .alignment-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+
+        /* ============================================
+           SYNERGY ENGINE v1.0 — APPENDED CLASSES
+           Do not remove or reorder these blocks.
+           ============================================ */
+
+        /* Astro-Sync glow: pulses when a card's sun sign matches today's season */
+        @keyframes astro-glow {
+            0%, 100% {
+                box-shadow: 0 0 8px 3px rgba(212, 165, 116, 0.45),
+                            0 2px 8px rgba(0,0,0,0.04);
+                border-color: var(--accent);
+            }
+            50% {
+                box-shadow: 0 0 22px 8px rgba(212, 165, 116, 0.75),
+                            0 6px 18px rgba(212, 165, 116, 0.3);
+                border-color: #e8b87a;
+            }
+        }
+        .card { position: relative; } /* required for ::after badge */
+        .astro-highlight {
+            animation: astro-glow 3s ease-in-out infinite !important;
+            border-color: var(--accent) !important;
+            background: linear-gradient(135deg, var(--card-bg) 0%, #fdf5ec 100%) !important;
+        }
+        .astro-highlight::after {
+            content: '☉ In Season';
+            position: absolute;
+            top: -10px;
+            right: 12px;
+            background: var(--accent);
+            color: white;
+            font-size: 0.68em;
+            font-weight: 700;
+            padding: 2px 9px;
+            border-radius: 8px;
+            letter-spacing: 0.5px;
+            pointer-events: none;
+        }
+
+        /* Guest lock: blurs content inaccessible in viewer mode */
+        .guest-lock {
+            filter: blur(5px);
+            pointer-events: none;
+            user-select: none;
+            opacity: 0.45;
+            position: relative;
+        }
+        .guest-lock::after {
+            content: '🔒 Invited Access Only';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            color: var(--secondary);
+            font-weight: 600;
+            filter: none;
+            opacity: 1;
+        }
+
+        /* Invitation Gate overlay */
+        #inviteGate {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(45, 45, 61, 0.88);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+        #inviteGate.active { display: flex; }
+        .gate-box {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 44px 40px;
+            max-width: 420px;
+            width: 92%;
+            text-align: center;
+            box-shadow: 0 28px 70px rgba(0,0,0,0.28);
+            animation: slideUp 0.35s ease;
+        }
+        .gate-mandala {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            animation: mandala-pulse 4s ease-in-out infinite;
+        }
+        .gate-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.9em;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+        .gate-subtitle {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05em;
+            color: var(--secondary);
+            margin-bottom: 28px;
+            font-style: italic;
+        }
+        .gate-input {
+            width: 100%;
+            padding: 13px 18px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-family: 'Jost', sans-serif;
+            font-size: 1.05em;
+            text-align: center;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+        .gate-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(139,123,168,0.15);
+        }
+        .gate-error {
+            color: var(--danger);
+            font-size: 0.83em;
+            margin-bottom: 10px;
+            min-height: 18px;
+            transition: opacity 0.2s;
+        }
+        .gate-btn {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, var(--secondary) 0%, #9b8bb8 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Jost', sans-serif;
+            font-weight: 700;
+            font-size: 0.95em;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+        }
+        .gate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(139,123,168,0.38);
+        }
+        .gate-divider {
+            color: var(--secondary);
+            font-size: 0.78em;
+            margin-bottom: 10px;
+            opacity: 0.6;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .gate-guest-link {
+            font-size: 0.83em;
+            color: var(--secondary);
+            cursor: pointer;
+            text-decoration: underline;
+            opacity: 0.7;
+            background: none;
+            border: none;
+            font-family: 'Jost', sans-serif;
+            padding: 0;
+            transition: opacity 0.2s;
+        }
+        .gate-guest-link:hover { opacity: 1; transform: none; box-shadow: none; }
+
+        /* Synergy status badge (bottom-right corner) */
+        #synergy-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.92);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 0.73em;
+            color: var(--secondary);
+            font-family: 'Jost', sans-serif;
+            z-index: 50;
+            backdrop-filter: blur(4px);
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>✦ SoulSpark Resource Guide ✦</h1>
+        <p class="subtitle">Practitioners • Modalities • Spiritual Ecosystem</p>
+        
+        <div class="view-toggle">
+            <button id="directoryViewBtn" class="active">Directory</button>
+            <button id="mandalaViewBtn">Mandala</button>
+            <button id="api-status" style="margin-left: auto; padding: 8px 12px; border: none; border-radius: 20px; background: rgba(200,90,84,0.1); color: var(--danger); cursor: default;">Offline Mode</button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- DIRECTORY VIEW -->
+        <div id="directoryView" class="view-container active">
+            <div class="directory-header">
+                <div class="search-box">
+                    <input 
+                        id="directorySearch" 
+                        type="text" 
+                        placeholder="Search practitioners, modalities, tags..."
+                        autocomplete="off"
+                    >
+                </div>
+                <div class="filter-section">
+                    <select id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="person">Practitioners</option>
+                        <option value="modality">Modalities</option>
+                    </select>
+                    <select id="modalityFilter">
+                        <option value="">All Modalities</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="practitionerGrid" class="grid"></div>
+
+            <!-- ADMIN PANEL -->
+            <div class="admin-panel">
+                <div class="admin-header">
+                    <h2 class="admin-title">Admin Entry Portal</h2>
+                    <div class="role-badge admin">Admin Mode</div>
+                </div>
+
+                <form id="entryForm">
+                    <fieldset>
+                        <legend style="font-family: 'Playfair Display', serif; font-size: 1.3em; color: var(--primary); margin-bottom: 15px;">Basic Information</legend>
+                        
+                        <div class="form-grid">
+                            <div>
+                                <label>Name *</label>
+                                <input id="name" type="text" placeholder="Full name" required>
+                            </div>
+                            <div>
+                                <label>Type *</label>
+                                <select id="type" required>
+                                    <option value="">Select...</option>
+                                    <option value="person">Practitioner</option>
+                                    <option value="modality">Modality</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div>
+                                <label>Primary Modality</label>
+                                <input id="modality" type="text" placeholder="e.g., Human Design, Reiki">
+                            </div>
+                            <div>
+                                <label>Additional Modalities</label>
+                                <input id="additionalModalities" type="text" placeholder="e.g., Tarot, Astrology">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label>Description / Details</label>
+                            <textarea id="description" placeholder="Bio, service description, or modality explanation..."></textarea>
+                        </div>
+                    </fieldset>
+
+                    <fieldset style="margin-top: 20px;">
+                        <legend style="font-family: 'Playfair Display', serif; font-size: 1.3em; color: var(--primary); margin-bottom: 15px;">Location & Contact</legend>
+                        
+                        <div class="form-grid">
+                            <div>
+                                <label>City</label>
+                                <input id="city" type="text" placeholder="e.g., Norfolk">
+                            </div>
+                            <div>
+                                <label>Region/State</label>
+                                <input id="region" type="text" placeholder="e.g., Virginia">
+                            </div>
+                            <div>
+                                <label>Country</label>
+                                <input id="country" type="text" placeholder="e.g., USA">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label>Areas Served</label>
+                            <input id="areasServed" type="text" placeholder="e.g., USA | Remote | East Coast (separate with |)">
+                        </div>
+
+                        <div class="form-grid">
+                            <div>
+                                <label>Phone (+Country-Area-Number)</label>
+                                <input id="phone" type="text" placeholder="+1-757-555-8472">
+                            </div>
+                            <div>
+                                <label>Email</label>
+                                <input id="email" type="email" placeholder="email@example.com">
+                            </div>
+                            <div>
+                                <label>Website</label>
+                                <input id="website" type="url" placeholder="https://example.com">
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset style="margin-top: 20px;">
+                        <legend style="font-family: 'Playfair Display', serif; font-size: 1.3em; color: var(--primary); margin-bottom: 15px;">Alignment Profile</legend>
+                        
+                        <div class="alignment-section">
+                            <h4>Personality & System Tags</h4>
+                            
+                            <div>
+                                <label>Myers-Briggs (MBTI)</label>
+                                <select id="mbti">
+                                    <option value="">None</option>
+                                    <option value="INFJ">INFJ</option>
+                                    <option value="INFP">INFP</option>
+                                    <option value="INTJ">INTJ</option>
+                                    <option value="INTP">INTP</option>
+                                    <option value="ENFJ">ENFJ</option>
+                                    <option value="ENFP">ENFP</option>
+                                    <option value="ENTJ">ENTJ</option>
+                                    <option value="ENTP">ENTP</option>
+                                    <option value="ISFJ">ISFJ</option>
+                                    <option value="ISFP">ISFP</option>
+                                    <option value="ISTJ">ISTJ</option>
+                                    <option value="ISTP">ISTP</option>
+                                    <option value="ESFJ">ESFJ</option>
+                                    <option value="ESFP">ESFP</option>
+                                    <option value="ESTJ">ESTJ</option>
+                                    <option value="ESTP">ESTP</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>Human Design Type</label>
+                                <select id="humanDesign">
+                                    <option value="">None</option>
+                                    <option value="Manifestor">Manifestor</option>
+                                    <option value="Generator">Generator</option>
+                                    <option value="Manifesting Generator">Manifesting Generator</option>
+                                    <option value="Projector">Projector</option>
+                                    <option value="Reflector">Reflector</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="alignment-section">
+                            <h4>Astrology (Sun • Moon • Rising)</h4>
+                            
+                            <div>
+                                <label>Sun Sign</label>
+                                <select id="sunSign">
+                                    <option value="">None</option>
+                                    <option value="Aries">Aries</option>
+                                    <option value="Taurus">Taurus</option>
+                                    <option value="Gemini">Gemini</option>
+                                    <option value="Cancer">Cancer</option>
+                                    <option value="Leo">Leo</option>
+                                    <option value="Virgo">Virgo</option>
+                                    <option value="Libra">Libra</option>
+                                    <option value="Scorpio">Scorpio</option>
+                                    <option value="Sagittarius">Sagittarius</option>
+                                    <option value="Capricorn">Capricorn</option>
+                                    <option value="Aquarius">Aquarius</option>
+                                    <option value="Pisces">Pisces</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>Moon Sign</label>
+                                <select id="moonSign">
+                                    <option value="">None</option>
+                                    <option value="Aries">Aries</option>
+                                    <option value="Taurus">Taurus</option>
+                                    <option value="Gemini">Gemini</option>
+                                    <option value="Cancer">Cancer</option>
+                                    <option value="Leo">Leo</option>
+                                    <option value="Virgo">Virgo</option>
+                                    <option value="Libra">Libra</option>
+                                    <option value="Scorpio">Scorpio</option>
+                                    <option value="Sagittarius">Sagittarius</option>
+                                    <option value="Capricorn">Capricorn</option>
+                                    <option value="Aquarius">Aquarius</option>
+                                    <option value="Pisces">Pisces</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>Rising Sign</label>
+                                <select id="risingSign">
+                                    <option value="">None</option>
+                                    <option value="Aries">Aries</option>
+                                    <option value="Taurus">Taurus</option>
+                                    <option value="Gemini">Gemini</option>
+                                    <option value="Cancer">Cancer</option>
+                                    <option value="Leo">Leo</option>
+                                    <option value="Virgo">Virgo</option>
+                                    <option value="Libra">Libra</option>
+                                    <option value="Scorpio">Scorpio</option>
+                                    <option value="Sagittarius">Sagittarius</option>
+                                    <option value="Capricorn">Capricorn</option>
+                                    <option value="Aquarius">Aquarius</option>
+                                    <option value="Pisces">Pisces</option>
+                                </select>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset style="margin-top: 20px;">
+                        <legend style="font-family: 'Playfair Display', serif; font-size: 1.3em; color: var(--primary); margin-bottom: 15px;">Additional Info</legend>
+                        
+                        <div>
+                            <label>Notes</label>
+                            <textarea id="notes" placeholder="Any additional details..."></textarea>
+                        </div>
+                    </fieldset>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-plus"></i> Add Entry
+                        </button>
+                        <button type="reset" class="btn-secondary">
+                            Clear Form
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- MANDALA VIEW -->
+        <div id="mandalaView" class="view-container">
+            <div class="mandala-container">
+                <canvas id="mandala-canvas"></canvas>
+                <div class="mandala-info">
+                    <strong>SoulSpark Mandala Explorer</strong><br>
+                    <small id="mandalaClusterMode">Clustering by: Modality</small><br>
+                    <small id="mandalaCount">Practitioners loaded...</small>
+                </div>
+                <div class="mandala-controls">
+                    <button onclick="changeMandalaCluster('modality')">By Modality</button>
+                    <button onclick="changeMandalaCluster('astrology')">By Astrology</button>
+                    <button onclick="changeMandalaCluster('humandesign')">By Human Design</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL FOR DETAIL VIEW -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="button-group">
+                <button class="btn-danger" id="deleteBtn" style="display: none;">Delete Entry</button>
+                <button class="btn-secondary" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // DATA MANAGEMENT & LOCAL STORAGE
+        // ============================================
+
+        let db = JSON.parse(localStorage.getItem("soulsparkDB")) || [];
+        let currentUser = { role: "ADMIN" }; // Default: admin mode
+        let currentClusterMode = "modality";
+        let googleSheetURL = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            initGatekeeper();
+            renderDirectory();
+            applyAstroSync();
+            setupEventListeners();
+            loadGoogleSheetIfConfigured();
+            loadFromLocalStorage();  // also load CRM local data as fallback
+        });
+
+        function initializeApp() {
+            updateModalityFilter();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('directoryViewBtn').addEventListener('click', switchToDirectory);
+            document.getElementById('mandalaViewBtn').addEventListener('click', switchToMandala);
+            document.getElementById('directorySearch').addEventListener('input', renderDirectory);
+            document.getElementById('typeFilter').addEventListener('change', renderDirectory);
+            document.getElementById('modalityFilter').addEventListener('change', renderDirectory);
+            document.getElementById('entryForm').addEventListener('submit', handleFormSubmit);
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            if (!checkPermission('add')) return;
+
+            const entry = {
+                id: Date.now().toString(),
+                name: document.getElementById('name').value,
+                type: document.getElementById('type').value,
+                modality: document.getElementById('modality').value,
+                additionalModalities: document.getElementById('additionalModalities').value,
+                description: document.getElementById('description').value,
+                city: document.getElementById('city').value,
+                region: document.getElementById('region').value,
+                country: document.getElementById('country').value,
+                areasServed: document.getElementById('areasServed').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                website: document.getElementById('website').value,
+                mbti: document.getElementById('mbti').value,
+                humanDesign: document.getElementById('humanDesign').value,
+                sunSign: document.getElementById('sunSign').value,
+                moonSign: document.getElementById('moonSign').value,
+                risingSign: document.getElementById('risingSign').value,
+                notes: document.getElementById('notes').value,
+                createdAt: new Date().toISOString()
+            };
+
+            db.push(entry);
+            saveDB();
+            document.getElementById('entryForm').reset();
+            alert('✓ Entry added successfully!');
+        }
+
+        function saveDB() {
+            localStorage.setItem("soulsparkDB", JSON.stringify(db));
+            renderDirectory();
+            buildMandala();
+            updateModalityFilter();
+        }
+
+        // ============================================
+        // PERMISSION & USER ROLES
+        // ============================================
+
+        function checkPermission(action) {
+            const permissions = {
+                view: ['ADMIN', 'EDITOR', 'VIEWER'],
+                add: ['ADMIN', 'EDITOR'],
+                edit: ['ADMIN', 'EDITOR'],
+                delete: ['ADMIN']
+            };
+
+            if (!permissions[action] || !permissions[action].includes(currentUser.role)) {
+                alert(`⚠ Your role (${currentUser.role}) doesn't have permission to ${action} entries.`);
+                return false;
+            }
+            return true;
+        }
+
+        // ============================================
+        // DIRECTORY VIEW
+        // ============================================
+
+        function switchToDirectory() {
+            document.getElementById('directoryView').classList.add('active');
+            document.getElementById('mandalaView').classList.remove('active');
+            document.getElementById('directoryViewBtn').classList.add('active');
+            document.getElementById('mandalaViewBtn').classList.remove('active');
+        }
+
+        function renderDirectory() {
+            const grid = document.getElementById('practitionerGrid');
+            const search = document.getElementById('directorySearch').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+            const modalityFilter = document.getElementById('modalityFilter').value;
+
+            let filtered = db.filter(entry => {
+                const matchSearch = entry.name.toLowerCase().includes(search) ||
+                    (entry.modality || '').toLowerCase().includes(search) ||
+                    (entry.description || '').toLowerCase().includes(search) ||
+                    (entry.mbti || '').toLowerCase().includes(search) ||
+                    (entry.humanDesign || '').toLowerCase().includes(search) ||
+                    (entry.sunSign || '').toLowerCase().includes(search) ||
+                    (entry.moonSign || '').toLowerCase().includes(search) ||
+                    (entry.risingSign || '').toLowerCase().includes(search) ||
+                    (entry.areasServed || '').toLowerCase().includes(search) ||
+                    (entry.additionalModalities || '').toLowerCase().includes(search);
+
+                const matchType = !typeFilter || entry.type === typeFilter;
+                const matchModality = !modalityFilter || entry.modality === modalityFilter;
+
+                return matchSearch && matchType && matchModality;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-state-icon">✨</div>
+                        <h3>No entries found</h3>
+                        <p>Try adjusting your search or add new practitioners using the form below.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(entry => `
+                <div class="card" onclick="openDetailModal('${entry.id}')" data-mbti="${entry.mbti || ''}" data-hd="${entry.humanDesign || ''}" data-sun="${entry.sunSign || ''}">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">${entry.name}</div>
+                            <div class="card-modality">${entry.modality || 'Modality'}</div>
+                        </div>
+                        <div class="card-type ${entry.type}">${entry.type}</div>
+                    </div>
+
+                    ${entry.city || entry.region || entry.country ? `
+                        <div class="card-location">
+                            📍 ${[entry.city, entry.region, entry.country].filter(Boolean).join(', ')}
+                        </div>
+                    ` : ''}
+
+                    ${entry.areasServed ? `
+                        <div class="card-areas-served">
+                            ${entry.areasServed.split('|').map(area => 
+                                `<span class="area-tag">${area.trim()}</span>`
+                            ).join('')}
+                        </div>
+                    ` : ''}
+
+                    <div class="card-tags">
+                        ${entry.modality ? `<span class="tag modality-link">${entry.modality}</span>` : ''}
+                        ${entry.additionalModalities ? entry.additionalModalities.split(',').map(m => 
+                            `<span class="tag modality-link">${m.trim()}</span>`
+                        ).join('') : ''}
+                        ${entry.mbti ? `<span class="tag">${entry.mbti}</span>` : ''}
+                        ${entry.humanDesign ? `<span class="tag">${entry.humanDesign}</span>` : ''}
+                        ${entry.sunSign ? `<span class="tag">☉ ${entry.sunSign}</span>` : ''}
+                        ${entry.moonSign ? `<span class="tag">☾ ${entry.moonSign}</span>` : ''}
+                        ${entry.risingSign ? `<span class="tag">↑ ${entry.risingSign}</span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateModalityFilter() {
+            const select = document.getElementById('modalityFilter');
+            const modalities = [...new Set(db.map(e => e.modality).filter(Boolean))];
+            const currentValue = select.value;
+
+            select.innerHTML = '<option value="">All Modalities</option>' +
+                modalities.map(m => `<option value="${m}">${m}</option>`).join('');
+
+            select.value = currentValue;
+        }
+
+        // ============================================
+        // DETAIL MODAL
+        // ============================================
+
+        function openDetailModal(id) {
+            if (!checkPermission('view')) return;
+
+            const entry = db.find(e => e.id === id);
+            if (!entry) return;
+
+            const modal = document.getElementById('detailModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            const deleteBtn = document.getElementById('deleteBtn');
+
+            title.textContent = entry.name;
+
+            let html = `
+                <div class="info-group">
+                    <div class="info-label">Type</div>
+                    <div class="info-value">${entry.type === 'person' ? 'Practitioner' : 'Modality'}</div>
+                </div>
+            `;
+
+            if (entry.modality) {
+                html += `
+                    <div class="info-group">
+                        <div class="info-label">Modality</div>
+                        <div class="info-value">${entry.modality}</div>
+                    </div>
+                `;
+            }
+
+            if (entry.additionalModalities) {
+                html += `
+                    <div class="info-group">
+                        <div class="info-label">Additional Modalities</div>
+                        <div class="info-value">${entry.additionalModalities}</div>
+                    </div>
+                `;
+            }
+
+            if (entry.description) {
+                html += `
+                    <div class="info-group">
+                        <div class="info-label">About</div>
+                        <div class="info-value">${entry.description}</div>
+                    </div>
+                `;
+            }
+
+            if (entry.city || entry.region || entry.country) {
+                html += `
+                    <div class="info-group">
+                        <div class="info-label">Location</div>
+                        <div class="info-value">
+                            📍 ${[entry.city, entry.region, entry.country].filter(Boolean).join(', ')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (entry.areasServed) {
+                html += `
+                    <div class="info-group">
+                        <div class="info-label">Areas Served</div>
+                        <div class="modal-tags">
+                            ${entry.areasServed.split('|').map(area => 
+                                `<span class="tag">${area.trim()}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (entry.phone) {
+                html += `
+                    <div class="info-group">
+                        <div class="info-label">Phone</div>
+                        <div class="info-value"><a href="tel:${entry.phone}">${entry.phone}</a></div>
+                    </div>
+                `;
+            }
+
+            if (entry.email) {
+                html += `
+                    <div class="info-group">
+                        <div class="info-label">Email</div>
+                        <div class="info-value"><a href="mailto:${entry.email}">${entry.email}</a></div>
+                    </div>
+                `;
+            }
+
+            if (entry.website) {
+                html += `
+                    <div class="info-group">
+                        <div class="info-label">Website</div>
+                        <div class="info-value"><a href="${entry.website}" target="_blank">${entry.website}</a></div>
+                    </div>
+                `;
+            }
+
+            if (entry.mbti || entry.humanDesign) {
+                html += `
+                    <div class="info-group">
+                        <div class="info-label">Alignment Profile</div>
+                        <div class="modal-tags">
+                            ${entry.mbti ? `<span class="tag">${entry.mbti}</span>` : ''}
+                            ${entry.humanDesign ? `<span class="tag">${entry.humanDesign}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (entry.sunSign || entry.moonSign || entry.risingSign) {
+                html += `
+                    <div class="info-group">
+                        <div class="info-label">Astrology</div>
+                        <div class="modal-tags">
+                            ${entry.sunSign ? `<span class="tag">☉ ${entry.sunSign}</span>` : ''}
+                            ${entry.moonSign ? `<span class="tag">☾ ${entry.moonSign}</span>` : ''}
+                            ${entry.risingSign ? `<span class="tag">↑ ${entry.risingSign}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (entry.notes) {
+                html += `
+                    <div class="info-group">
+                        <div class="info-label">Notes</div>
+                        <div class="info-value">${entry.notes}</div>
+                    </div>
+                `;
+            }
+
+            body.innerHTML = html;
+
+            deleteBtn.style.display = checkPermission('delete') ? 'block' : 'none';
+            deleteBtn.onclick = () => {
+                if (confirm('Delete this entry? This cannot be undone.')) {
+                    db = db.filter(e => e.id !== id);
+                    saveDB();
+                    closeModal();
+                }
+            };
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+
+        // ============================================
+        // MANDALA VIEW
+        // ============================================
+
+        function switchToMandala() {
+            document.getElementById('directoryView').classList.remove('active');
+            document.getElementById('mandalaView').classList.add('active');
+            document.getElementById('directoryViewBtn').classList.remove('active');
+            document.getElementById('mandalaViewBtn').classList.add('active');
+            buildMandala();
+        }
+
+        function buildMandala() {
+            const canvas = document.getElementById('mandala-canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Set canvas size
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+
+            // Clear
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw background mandala pattern
+            drawMandalaBackground(ctx, canvas.width, canvas.height);
+
+            // Cluster data
+            let clusters = clusterPractitioners(currentClusterMode);
+
+            // Draw clusters
+            drawClusters(ctx, canvas.width, canvas.height, clusters);
+
+            // Update info
+            document.getElementById('mandalaCount').textContent = 
+                `${db.length} practitioners loaded • Showing by ${currentClusterMode}`;
+        }
+
+        function drawMandalaBackground(ctx, width, height) {
+            const centerX = width / 2;
+            const centerY = height / 2;
+
+            // Draw concentric circles
+            for (let r = 50; r < 250; r += 40) {
+                ctx.strokeStyle = `rgba(139, 123, 168, ${0.08 * (1 - r / 250)})`;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // Draw radial lines
+            for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 8) {
+                ctx.strokeStyle = `rgba(139, 123, 168, 0.05)`;
+                const r = 250;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(centerX + Math.cos(angle) * r, centerY + Math.sin(angle) * r);
+                ctx.stroke();
+            }
+        }
+
+        function clusterPractitioners(mode) {
+            let clusters = {};
+
+            db.forEach(entry => {
+                let key;
+
+                if (mode === 'modality') {
+                    key = entry.modality || 'Unspecified';
+                } else if (mode === 'astrology') {
+                    key = entry.sunSign || 'Unspecified';
+                } else if (mode === 'humandesign') {
+                    key = entry.humanDesign || 'Unspecified';
+                }
+
+                if (!clusters[key]) {
+                    clusters[key] = [];
+                }
+                clusters[key].push(entry);
+            });
+
+            return clusters;
+        }
+
+        function drawClusters(ctx, width, height, clusters) {
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const clusterArray = Object.entries(clusters);
+            const colors = [
+                '#8b7ba8', '#d4a574', '#7ab55c', '#c85a54', '#2d2d3d',
+                '#e6d7ff', '#f4e8d0', '#d9f0d1', '#f4d5cc', '#c9bcc9'
+            ];
+
+            clusterArray.forEach(([ clusterName, entries ], index) => {
+                const angle = (index / clusterArray.length) * Math.PI * 2;
+                const clusterRadius = 150;
+                const clusterX = centerX + Math.cos(angle) * clusterRadius;
+                const clusterY = centerY + Math.sin(angle) * clusterRadius;
+
+                const color = colors[index % colors.length];
+
+                // Draw cluster circle
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.2;
+                ctx.beginPath();
+                ctx.arc(clusterX, clusterY, 80, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+
+                // Draw cluster label
+                ctx.fillStyle = color;
+                ctx.font = 'bold 12px Jost';
+                ctx.textAlign = 'center';
+                ctx.fillText(clusterName, clusterX, clusterY - 95);
+
+                // Draw practitioners in cluster
+                entries.forEach((entry, pIndex) => {
+                    const pAngle = (pIndex / entries.length) * Math.PI * 2;
+                    const pRadius = 50;
+                    const pX = clusterX + Math.cos(pAngle) * pRadius;
+                    const pY = clusterY + Math.sin(pAngle) * pRadius;
+
+                    // Draw node
+                    ctx.fillStyle = 'white';
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(pX, pY, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Draw initials
+                    ctx.fillStyle = color;
+                    ctx.font = '10px Jost';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    const initials = entry.name.split(' ').map(n => n[0]).join('').substring(0, 2);
+                    ctx.fillText(initials, pX, pY);
+                });
+            });
+
+            // Draw core
+            ctx.fillStyle = '#fefdfb';
+            ctx.strokeStyle = '#8b7ba8';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 30, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#8b7ba8';
+            ctx.font = 'bold 11px Playfair Display';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('SOUL', centerX, centerY - 8);
+            ctx.fillText('SPARK', centerX, centerY + 8);
+        }
+
+        function changeMandalaCluster(mode) {
+            currentClusterMode = mode;
+            buildMandala();
+        }
+
+        // ============================================
+        // GOOGLE SHEETS INTEGRATION
+        // ============================================
+
+        function loadGoogleSheetIfConfigured() {
+            // SYNERGY: Auto-connect to SoulSpark Resource Guide spreadsheet
+            const SYNERGY_URL = 'https://script.google.com/macros/s/AKfycbzg5yEU77kQPmY3x1qbFORpwPqco9C3Oghj-vE7DN2NUbY7WTz-Vz8IPkW5Jg9Sm1o/exec';
+            const urlParam = new URLSearchParams(window.location.search).get('sheet');
+            googleSheetURL = urlParam ? decodeURIComponent(urlParam)
+                           : (function() { try { return sessionStorage.getItem('ss_mandala_sheet_url') || SYNERGY_URL; } catch(e) { return SYNERGY_URL; } })();
+            // Share URL with binder
+            try { sessionStorage.setItem('ss_mandala_sheet_url', googleSheetURL); } catch(e) {}
+            syncWithGoogleSheet();
+        }
+
+
+        // ── LOCAL STORAGE FALLBACK ───────────────────────────────────────────
+        // Reads from the SoulSpark CRM (rg_local) if on same domain,
+        // or from mandala's own soulsparkDB cache
+        function loadFromLocalStorage() {
+            try {
+                // Try CRM data first (rg_local key used by unified CRM)
+                var raw = localStorage.getItem('rg_local') || localStorage.getItem('soulsparkDB');
+                if (!raw) return;
+                var records = JSON.parse(raw);
+                if (!Array.isArray(records) || records.length === 0) return;
+
+                // Filter to people section only
+                var people = records.filter(function(r) {
+                    return !r._section || r._section === 'people' || r._section === 'networking';
+                });
+                if (people.length === 0) people = records; // fallback: use all
+
+                var mapped = people.map(function(r) {
+                    return {
+                        id:                   (r.full_name || r.name || 'local') + '-' + Date.now() + Math.random(),
+                        name:                 r.full_name || r.name || '',
+                        type:                 r.role_title || r.type || 'person',
+                        modality:             r.modalities || r.modality || '',
+                        additionalModalities: r.specialty_tags || '',
+                        description:          r.bio || r.about_bio || r.description || '',
+                        city:                 r.location || r.city || '',
+                        region:               r.service_area || r.region || '',
+                        country:              r.country || '',
+                        areasServed:          r.service_area || r.areasServed || '',
+                        phone:                r.phone || '',
+                        email:                r.email || '',
+                        website:              r.website || '',
+                        instagram:            r.instagram || '',
+                        mbti:                 r.mbti || '',
+                        humanDesign:          r.hd_type || r.humanDesign || '',
+                        sunSign:              r.sun_sign || r.sunSign || '',
+                        moonSign:             r.moon_sign || r.moonSign || '',
+                        risingSign:           r.rising_sign || r.risingSign || '',
+                        notes:                r.notes || ''
+                    };
+                }).filter(function(p) { return p.name; });
+
+                if (mapped.length > 0 && db.length === 0) {
+                    // Only use local data if sheet sync hasn't loaded yet
+                    db = mapped;
+                    saveDB();
+                    renderDirectory();
+                    if (typeof buildMandala === 'function') buildMandala();
+                    applyAstroSync();
+                    console.log('Loaded ' + mapped.length + ' entries from local storage');
+                }
+            } catch(e) {
+                // Silently fail — localStorage not available or data corrupted
+            }
+        }
+
+                function syncWithGoogleSheet() {
+            if (!googleSheetURL) return;
+            // JSONP — bypasses CORS restriction on Google Apps Script
+            const callbackName = 'ss_cb_' + Date.now();
+            const tag = document.createElement('script');
+            tag.src = googleSheetURL + '?action=getDirectory&callback=' + callbackName;
+
+            const timeout = setTimeout(function() {
+                cleanup();
+                console.warn('Sync timed out — offline mode.');
+                updateApiStatus(false);
+            }, 12000);
+
+            window[callbackName] = function(respRaw) {
+                cleanup();
+                try {
+                    const sheetData = Array.isArray(respRaw)
+                        ? respRaw
+                        : (respRaw.people || respRaw.submissions || []);
+
+                    if (sheetData.length === 0) { updateApiStatus(false); return; }
+
+                    db = sheetData.map(function(row) {
+                        return {
+                            id:                   (row['full_name'] || row['Name'] || 'entry') + '-' + Date.now() + Math.random(),
+                            name:                 row['full_name']     || row['Name']                 || '',
+                            type:                 row['role_title']    || row['Type']                 || 'person',
+                            modality:             row['modalities']    || row['Primary Modality']      || '',
+                            additionalModalities: row['specialty_tags']|| row['Additional Modalities'] || '',
+                            description:          row['bio']           || row['about_bio']            || row['Description']   || '',
+                            city:                 row['location']      || row['City']                  || '',
+                            region:               row['service_area']  || row['Region']                || '',
+                            country:              row['country']       || row['Country']               || '',
+                            areasServed:          row['service_area']  || row['Areas Served']          || '',
+                            phone:                row['phone']         || row['Phone']                 || '',
+                            email:                row['email']         || row['Email']                 || '',
+                            website:              row['website']       || row['Website']               || '',
+                            instagram:            row['instagram']     || '',
+                            mbti:                 row['mbti']          || row['MBTI']                  || '',
+                            humanDesign:          row['hd_type']       || row['Human Design']          || '',
+                            sunSign:              row['sun_sign']      || row['Sun Sign']              || '',
+                            moonSign:             row['moon_sign']     || row['Moon Sign']             || '',
+                            risingSign:           row['rising_sign']   || row['Rising Sign']           || '',
+                            notes:                row['notes']         || row['Notes']                 || ''
+                        };
+                    });
+
+                    saveDB();
+                    renderDirectory();
+                    if (typeof buildMandala === 'function') buildMandala();
+                    applyAstroSync();
+                    updateApiStatus(true);
+                    console.log('✓ Synced ' + db.length + ' entries from Google Sheet');
+                } catch(e) {
+                    console.error('Sync error:', e);
+                    updateApiStatus(false);
+                }
+            };
+
+            tag.onerror = function() {
+                cleanup();
+                updateApiStatus(false);
+            };
+
+            function cleanup() {
+                clearTimeout(timeout);
+                delete window[callbackName];
+                if (tag.parentNode) tag.parentNode.removeChild(tag);
+            }
+
+            document.head.appendChild(tag);
+        }
+
+        function updateApiStatus(online) {
+            const status = document.getElementById('api-status');
+            if (online) {
+                status.textContent = 'Live Sync';
+                status.style.background = 'rgba(122, 181, 92, 0.1)';
+                status.style.color = 'var(--success)';
+            } else {
+                status.textContent = 'Offline Mode';
+                status.style.background = 'rgba(200, 90, 84, 0.1)';
+                status.style.color = 'var(--danger)';
+            }
+        }
+
+        // Auto-sync every 30 seconds if connected
+        setInterval(() => {
+            if (googleSheetURL) syncWithGoogleSheet();
+        }, 30000);
+
+        // ============================================
+        // SYNERGY ENGINE v1.0
+        // Invite Gate · AstroSync · data-attribute Search
+        // ============================================
+
+        // ── Configurable invite codes → role mapping ──
+        // Edit INVITE_CODES to match your own codes.
+        const INVITE_CODES = {
+            'SPARK2025':  'ADMIN',
+            'GUIDE2025':  'EDITOR',
+            'SOUL2025':   'EDITOR',
+            'GUEST':      'VIEWER',
+        };
+
+        // ── Gatekeeper: checks sessionStorage for an existing token ──────────
+        function initGatekeeper() {
+            const role = sessionStorage.getItem('ss_role');
+            if (role) {
+                applyRole(role);   // Already authenticated this session
+                return;
+            }
+            document.getElementById('inviteGate').classList.add('active');
+        }
+
+        function submitInviteCode() {
+            const val  = (document.getElementById('gateInput').value || '').trim().toUpperCase();
+            const errEl = document.getElementById('gateError');
+            const role = INVITE_CODES[val];
+            if (!role) {
+                errEl.textContent = 'Unrecognised code — please check and try again.';
+                document.getElementById('gateInput').style.borderColor = 'var(--danger)';
+                return;
+            }
+            errEl.textContent = '';
+            sessionStorage.setItem('ss_token', val);
+            sessionStorage.setItem('ss_role', role);
+            document.getElementById('inviteGate').classList.remove('active');
+            applyRole(role);
+        }
+
+        function enterAsGuest() {
+            sessionStorage.setItem('ss_token', 'GUEST');
+            sessionStorage.setItem('ss_role', 'VIEWER');
+            document.getElementById('inviteGate').classList.remove('active');
+            applyRole('VIEWER');
+        }
+
+        function applyRole(role) {
+            currentUser = { role };
+
+            const adminPanel = document.querySelector('.admin-panel');
+            if (adminPanel) {
+                if (role === 'VIEWER') {
+                    adminPanel.classList.add('guest-lock');
+                    const submitBtn = document.querySelector('#entryForm [type="submit"]');
+                    if (submitBtn) { submitBtn.disabled = true; submitBtn.title = 'Guest mode — editing disabled'; }
+                } else {
+                    adminPanel.classList.remove('guest-lock');
+                    const submitBtn = document.querySelector('#entryForm [type="submit"]');
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.title = ''; }
+                }
+            }
+
+            // Update role badge in admin panel header
+            const badge = document.querySelector('.role-badge');
+            if (badge) {
+                const label = role === 'ADMIN' ? 'Admin Mode' : role === 'EDITOR' ? 'Editor Mode' : 'Guest View';
+                badge.textContent = label;
+                badge.className   = 'role-badge ' + role.toLowerCase();
+            }
+
+            updateSynergyBadge(role);
+        }
+
+        function updateSynergyBadge(role) {
+            const badge = document.getElementById('synergy-badge');
+            const season = getCurrentZodiacSeason();
+            if (badge) badge.textContent = `✦ Synergy Engine · ${role} · ☉ ${season}`;
+        }
+
+        // ── AstroSync: current calendar zodiac season ─────────────────────────
+        function getCurrentZodiacSeason() {
+            const now = new Date();
+            const m   = now.getMonth() + 1;   // 1 = Jan … 12 = Dec
+            const d   = now.getDate();
+            if ((m === 3 && d >= 21) || (m === 4 && d <= 19)) return 'Aries';
+            if ((m === 4 && d >= 20) || (m === 5 && d <= 20)) return 'Taurus';
+            if ((m === 5 && d >= 21) || (m === 6 && d <= 20)) return 'Gemini';
+            if ((m === 6 && d >= 21) || (m === 7 && d <= 22)) return 'Cancer';
+            if ((m === 7 && d >= 23) || (m === 8 && d <= 22)) return 'Leo';
+            if ((m === 8 && d >= 23) || (m === 9 && d <= 22)) return 'Virgo';
+            if ((m === 9 && d >= 23) || (m === 10 && d <= 22)) return 'Libra';
+            if ((m === 10 && d >= 23) || (m === 11 && d <= 21)) return 'Scorpio';
+            if ((m === 11 && d >= 22) || (m === 12 && d <= 21)) return 'Sagittarius';
+            if ((m === 12 && d >= 22) || (m === 1  && d <= 19)) return 'Capricorn';
+            if ((m === 1  && d >= 20) || (m === 2  && d <= 18)) return 'Aquarius';
+            return 'Pisces'; // Feb 19 – Mar 20
+        }
+
+        // applyAstroSync — runs after renderDirectory to highlight in-season cards
+        function applyAstroSync() {
+            const season = getCurrentZodiacSeason();
+            const cards  = document.querySelectorAll('.card[data-sun]');
+            let count    = 0;
+
+            cards.forEach(card => {
+                const sun = (card.getAttribute('data-sun') || '').trim();
+                if (sun && sun === season) {
+                    card.classList.add('astro-highlight');
+                    count++;
+                } else {
+                    card.classList.remove('astro-highlight');
+                }
+            });
+
+            // Update subtitle with live season context
+            const sub = document.querySelector('.subtitle');
+            if (sub) {
+                sub.textContent = `Practitioners · Modalities · Spiritual Ecosystem  ·  ☉ ${season} Season${count > 0 ? '  —  ' + count + ' Sun in ' + season : ''}`;
+            }
+            updateSynergyBadge(sessionStorage.getItem('ss_role') || 'VIEWER');
+        }
+
+        // ── Keyboard shortcut: Enter submits the gate code ────────────────────
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const gate = document.getElementById('inviteGate');
+                if (gate && gate.classList.contains('active')) {
+                    e.preventDefault();
+                    submitInviteCode();
+                }
+            }
+        });
+
+    </script>
+
+
+    <!-- ╔══════════════════════════════════════════════╗
+         ║  SYNERGY ENGINE — INVITATION GATE           ║
+         ╚══════════════════════════════════════════════╝ -->
+    <div id="inviteGate">
+        <div class="gate-box">
+            <div class="gate-mandala">✦</div>
+            <div class="gate-title">SoulSpark Resource Guide</div>
+            <div class="gate-subtitle">Enter your invite code to access the full directory</div>
+            <input
+                id="gateInput"
+                class="gate-input"
+                type="text"
+                placeholder="INVITE CODE"
+                maxlength="20"
+                autocomplete="off"
+            >
+            <div id="gateError" class="gate-error"></div>
+            <button class="gate-btn" onclick="submitInviteCode()">✦ Enter the Circle</button>
+            <div class="gate-divider">— or —</div>
+            <button class="gate-guest-link" onclick="enterAsGuest()">Continue as Guest (view only)</button>
+        </div>
+    </div>
+
+    <!-- Synergy Engine status badge -->
+    <div id="synergy-badge">✦ Synergy Engine · Loading…</div>
+
+</body>
+
+</html>
