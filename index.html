@@ -920,6 +920,7 @@
             <button id="directoryViewBtn" class="active">Directory</button>
             <button id="mandalaViewBtn">Mandala</button>
             <button id="api-status" style="margin-left: auto; padding: 8px 12px; border: none; border-radius: 20px; background: rgba(200,90,84,0.1); color: var(--danger); cursor: default;">Offline Mode</button>
+        <button onclick="retrySync()" id="retry-btn" title="Retry connection to Google Sheet" style="margin-left:8px;padding:8px 14px;border:1.5px solid #7c3aed;border-radius:20px;background:white;color:#7c3aed;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;">↻ Retry</button>
         </div>
     </header>
 
@@ -1768,6 +1769,17 @@
             } catch(e) {
                 // Silently fail — localStorage not available or data corrupted
             }
+        }
+
+        
+        // ── RETRY CONNECTION ─────────────────────────────────────────────────
+        function retrySync() {
+            var btn = document.getElementById('retry-btn');
+            if (btn) { btn.textContent = '⏳ Connecting…'; btn.disabled = true; }
+            loadGoogleSheetIfConfigured();
+            setTimeout(function() {
+                if (btn) { btn.textContent = '↻ Retry'; btn.disabled = false; }
+            }, 15000);
         }
 
                 function syncWithGoogleSheet() {
