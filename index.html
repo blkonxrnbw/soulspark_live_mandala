@@ -1209,6 +1209,7 @@
             applyAstroSync();
             setupEventListeners();
             loadGoogleSheetIfConfigured();
+            loadFromLocalStorage();  // also load CRM local data as fallback
         });
 
         function initializeApp() {
@@ -1712,81 +1713,134 @@
             syncWithGoogleSheet();
         }
 
-        async function syncWithGoogleSheet() {
-            if (!googleSheetURL) return;
 
-            // Google Apps Script blocks direct fetch() due to CORS.
-            // Solution: load via <script> tag with a ?callback= (JSONP) approach,
-            // OR use a no-cors fetch and parse the opaque response via a proxy.
-            // Apps Script Web Apps DO support JSONP — append &callback=fnName.
-            return new Promise((resolve) => {
-                const callbackName = 'ss_cb_' + Date.now();
-                const tag = document.createElement('script');
-                const baseUrl = googleSheetURL + (googleSheetURL.includes('?') ? '&' : '?') + 'action=getDirectory';
-                tag.src = baseUrl + '&callback=' + callbackName;
+        // ── LOCAL STORAGE FALLBACK ───────────────────────────────────────────
+        // Reads from the SoulSpark CRM (rg_local) if on same domain,
+        // or from mandala's own soulsparkDB cache
+        function loadFromLocalStorage() {
+            try {
+                // Try CRM data first (rg_local key used by unified CRM)
+                var raw = localStorage.getItem('rg_local') || localStorage.getItem('soulsparkDB');
+                if (!raw) return;
+                var records = JSON.parse(raw);
+                if (!Array.isArray(records) || records.length === 0) return;
 
-                // Timeout fallback after 10s
-                const timeout = setTimeout(() => {
-                    cleanup();
-                    console.warn('Google Sheet sync timed out — running offline.');
-                    updateApiStatus(false);
-                    resolve();
-                }, 10000);
+                // Filter to people section only
+                var people = records.filter(function(r) {
+                    return !r._section || r._section === 'people' || r._section === 'networking';
+                });
+                if (people.length === 0) people = records; // fallback: use all
 
-                window[callbackName] = function(respRaw) {
-                    cleanup();
-                    try {
-                        const sheetData = Array.isArray(respRaw) ? respRaw : (respRaw.people || respRaw.submissions || []);
-                
-                // Map Google Sheet columns to our data structure
-                // SYNERGY: supports both unified app snake_case AND direct Sheet column names
-                        db = sheetData.map(row => ({
-                    id: (row['full_name'] || row['Name'] || 'entry') + '-' + Date.now() + Math.random(),
-                    name:                 row['full_name']          || row['Name']                 || row['name']                 || '',
-                    type:                 row['role_title']         || row['Type']                 || row['type']                 || 'person',
-                    modality:             row['modalities']         || row['Primary Modality']      || row['modality']             || '',
-                    additionalModalities: row['specialty_tags']     || row['Additional Modalities'] || row['additionalModalities'] || '',
-                    description:          row['bio']                || row['Description']           || row['description']          || '',
-                    city:                 row['location']           || row['City']                  || row['city']                 || '',
-                    region:               row['service_area']       || row['Region']                || row['region']               || '',
-                    country:              row['Country']            || row['country']               || '',
-                    areasServed:          row['service_area']       || row['Areas Served']          || row['areasServed']          || '',
-                    phone:                row['phone']              || row['Phone']                 || '',
-                    email:                row['email']              || row['Email']                 || '',
-                    website:              row['website']            || row['Website']               || '',
-                    mbti:                 row['mbti']               || row['MBTI']                  || '',
-                    humanDesign:          row['hd_type']            || row['Human Design']          || row['humanDesign']          || '',
-                    sunSign:              row['sun_sign']           || row['Sun Sign']              || row['sunSign']              || '',
-                    moonSign:             row['moon_sign']          || row['Moon Sign']             || row['moonSign']             || '',
-                    risingSign:           row['rising_sign']        || row['Rising Sign']           || row['risingSign']           || '',
-                    notes:                row['notes']              || row['Notes']                 || ''
-                        }));
+                var mapped = people.map(function(r) {
+                    return {
+                        id:                   (r.full_name || r.name || 'local') + '-' + Date.now() + Math.random(),
+                        name:                 r.full_name || r.name || '',
+                        type:                 r.role_title || r.type || 'person',
+                        modality:             r.modalities || r.modality || '',
+                        additionalModalities: r.specialty_tags || '',
+                        description:          r.bio || r.about_bio || r.description || '',
+                        city:                 r.location || r.city || '',
+                        region:               r.service_area || r.region || '',
+                        country:              r.country || '',
+                        areasServed:          r.service_area || r.areasServed || '',
+                        phone:                r.phone || '',
+                        email:                r.email || '',
+                        website:              r.website || '',
+                        instagram:            r.instagram || '',
+                        mbti:                 r.mbti || '',
+                        humanDesign:          r.hd_type || r.humanDesign || '',
+                        sunSign:              r.sun_sign || r.sunSign || '',
+                        moonSign:             r.moon_sign || r.moonSign || '',
+                        risingSign:           r.rising_sign || r.risingSign || '',
+                        notes:                r.notes || ''
+                    };
+                }).filter(function(p) { return p.name; });
 
-                                saveDB();
-                        updateApiStatus(true);
-                        console.log('✓ Synced with Google Sheet');
-                    } catch(e) {
-                        console.error('Google Sheet sync failed:', e);
-                        updateApiStatus(false);
-                    }
-                    resolve();
-                };
-
-                tag.onerror = function() {
-                    cleanup();
-                    console.error('Google Sheet sync failed: script load error');
-                    updateApiStatus(false);
-                    resolve();
-                };
-
-                function cleanup() {
-                    clearTimeout(timeout);
-                    delete window[callbackName];
-                    if (tag.parentNode) tag.parentNode.removeChild(tag);
+                if (mapped.length > 0 && db.length === 0) {
+                    // Only use local data if sheet sync hasn't loaded yet
+                    db = mapped;
+                    saveDB();
+                    renderDirectory();
+                    if (typeof buildMandala === 'function') buildMandala();
+                    applyAstroSync();
+                    console.log('Loaded ' + mapped.length + ' entries from local storage');
                 }
+            } catch(e) {
+                // Silently fail — localStorage not available or data corrupted
+            }
+        }
 
-                document.head.appendChild(tag);
-            });
+                function syncWithGoogleSheet() {
+            if (!googleSheetURL) return;
+            // JSONP — bypasses CORS restriction on Google Apps Script
+            const callbackName = 'ss_cb_' + Date.now();
+            const tag = document.createElement('script');
+            tag.src = googleSheetURL + '?action=getDirectory&callback=' + callbackName;
+
+            const timeout = setTimeout(function() {
+                cleanup();
+                console.warn('Sync timed out — offline mode.');
+                updateApiStatus(false);
+            }, 12000);
+
+            window[callbackName] = function(respRaw) {
+                cleanup();
+                try {
+                    const sheetData = Array.isArray(respRaw)
+                        ? respRaw
+                        : (respRaw.people || respRaw.submissions || []);
+
+                    if (sheetData.length === 0) { updateApiStatus(false); return; }
+
+                    db = sheetData.map(function(row) {
+                        return {
+                            id:                   (row['full_name'] || row['Name'] || 'entry') + '-' + Date.now() + Math.random(),
+                            name:                 row['full_name']     || row['Name']                 || '',
+                            type:                 row['role_title']    || row['Type']                 || 'person',
+                            modality:             row['modalities']    || row['Primary Modality']      || '',
+                            additionalModalities: row['specialty_tags']|| row['Additional Modalities'] || '',
+                            description:          row['bio']           || row['about_bio']            || row['Description']   || '',
+                            city:                 row['location']      || row['City']                  || '',
+                            region:               row['service_area']  || row['Region']                || '',
+                            country:              row['country']       || row['Country']               || '',
+                            areasServed:          row['service_area']  || row['Areas Served']          || '',
+                            phone:                row['phone']         || row['Phone']                 || '',
+                            email:                row['email']         || row['Email']                 || '',
+                            website:              row['website']       || row['Website']               || '',
+                            instagram:            row['instagram']     || '',
+                            mbti:                 row['mbti']          || row['MBTI']                  || '',
+                            humanDesign:          row['hd_type']       || row['Human Design']          || '',
+                            sunSign:              row['sun_sign']      || row['Sun Sign']              || '',
+                            moonSign:             row['moon_sign']     || row['Moon Sign']             || '',
+                            risingSign:           row['rising_sign']   || row['Rising Sign']           || '',
+                            notes:                row['notes']         || row['Notes']                 || ''
+                        };
+                    });
+
+                    saveDB();
+                    renderDirectory();
+                    if (typeof buildMandala === 'function') buildMandala();
+                    applyAstroSync();
+                    updateApiStatus(true);
+                    console.log('✓ Synced ' + db.length + ' entries from Google Sheet');
+                } catch(e) {
+                    console.error('Sync error:', e);
+                    updateApiStatus(false);
+                }
+            };
+
+            tag.onerror = function() {
+                cleanup();
+                updateApiStatus(false);
+            };
+
+            function cleanup() {
+                clearTimeout(timeout);
+                delete window[callbackName];
+                if (tag.parentNode) tag.parentNode.removeChild(tag);
+            }
+
+            document.head.appendChild(tag);
         }
 
         function updateApiStatus(online) {
